@@ -1,9 +1,9 @@
 package com.ddg.achieveio.repository;
 
-import com.ddg.achieveio.entity.Achievement;
+import com.ddg.achieveio.entity.Platform;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
 
-public interface AchievementRepository extends JpaRepository<Achievement, UUID> {
+public interface PlatformRepository extends JpaRepository<Platform, UUID> {
 }

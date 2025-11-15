@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,44 +19,47 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private static final String[] PUBLIC_ENDPOINTS = {
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-ui.html"
+    };
+
     private final SecurityFilter securityFilter;
 
     public SecurityConfig(SecurityFilter securityFilter) {
         this.securityFilter = securityFilter;
     }
 
-    private static final String[] SWAGGER_WHITELIST = {
-        "/v3/api-docs/**",
-        "/swagger-ui/**",
-        "/swagger-ui.html"
-    };
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        return http
-                .csrf(csrf -> csrf.disable())
-                .cors(cors -> cors.configure(http))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize
-                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/games").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/achievements").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/user").hasAnyRole("USER", "ADMIN", "OWNER")
-                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                        .anyRequest().authenticated())
-                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(authorize -> authorize
+                .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
+                .requestMatchers(HttpMethod.GET, "/games/**", "/achievements").permitAll()
+                .requestMatchers(HttpMethod.POST, "/games").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/games/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/games/**").hasRole("ADMIN")
+                .requestMatchers("/user").hasAnyRole("USER", "ADMIN", "OWNER")
+                .anyRequest().authenticated())
+            .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
