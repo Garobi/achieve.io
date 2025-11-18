@@ -10,19 +10,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Embeddable
-@Getter
-@Setter
-@EqualsAndHashCode
-class VotesAchievementsId implements Serializable {
-
-    @Column(name = "user_id")
-    private UUID userId;
-
-    @Column(name = "achievement_id")
-    private UUID achievementId;
-}
-
 @Entity
 @Getter
 @Setter

@@ -5,14 +5,15 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record RegisterAchievementRequest(
-        @NotBlank(message = "Nome da conquista é obrigatório")
+public record AchievementRequestDTO(
+        @NotBlank(message = "O nome não pode estar em branco")
         String achievement_name,
 
-        @NotBlank(message = "Descrição da conquista é obrigatório")
+        @NotBlank(message = "A descrição não pode estar em branco")
         String achievement_description,
 
-        @NotNull(message = "Jogo relacionado a conquista é obrigatório")
+        @NotNull(message = "O ID do jogo não pode ser nulo")
         UUID game_id
 ) {
 }
+
