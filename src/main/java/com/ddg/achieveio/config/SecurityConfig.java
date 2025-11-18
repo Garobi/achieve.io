@@ -42,12 +42,48 @@ public class SecurityConfig {
                 .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                 .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                 .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/register").permitAll()
-                .requestMatchers(HttpMethod.GET, "/games/**", "/achievements").permitAll()
-                .requestMatchers(HttpMethod.POST, "/games").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/games/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/games/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET,
+                            "/games/**",
+                            "/platforms/**",
+                            "/achievements/**",
+                            "/challenges/**",
+                            "/finished-achievements/by-user/**",
+                            "/finished-achievements/by-achievement/**",
+                            "/finished-challenges/by-user/**",
+                            "/finished-challenges/by-challenge/**",
+                            "/votes/achievements/by-user/**",
+                            "/votes/achievements/by-achievement/**",
+                            "/votes/achievements/count/**",
+                            "/votes/challenges/by-user/**",
+                            "/votes/challenges/by-challenge/**",
+                            "/votes/challenges/count/**"
+                    ).permitAll()
+                .requestMatchers(HttpMethod.POST, "/games").hasAnyRole("ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.PUT, "/games/**").hasAnyRole("ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/games/**").hasAnyRole("ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.POST, "/platforms").hasRole("OWNER")
+                .requestMatchers(HttpMethod.PUT, "/platforms/**").hasRole("OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/platforms/**").hasRole("OWNER")
                 .requestMatchers("/user").hasAnyRole("USER", "ADMIN", "OWNER")
-                .anyRequest().authenticated())
+                .requestMatchers(HttpMethod.POST, "/achievements/register").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.PUT, "/achievements/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/achievements/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.POST, "/challenges").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.PUT, "/challenges/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/challenges/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.GET, "/finished-achievements/me").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.POST, "/finished-achievements").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/finished-achievements/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.GET, "/finished-challenges/me").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.POST, "/finished-challenges").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/finished-challenges/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.GET, "/votes/achievements/me").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.POST, "/votes/achievements").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/votes/achievements/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.GET, "/votes/challenges/me").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.POST, "/votes/challenges").hasAnyRole("USER", "ADMIN", "OWNER")
+                .requestMatchers(HttpMethod.DELETE, "/votes/challenges/**").hasAnyRole("USER", "ADMIN", "OWNER")
+                .anyRequest().hasRole("OWNER"))
             .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

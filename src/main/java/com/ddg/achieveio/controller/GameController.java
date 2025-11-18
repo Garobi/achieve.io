@@ -8,10 +8,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -29,14 +33,16 @@ public class GameController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Criar novo jogo", security = @SecurityRequirement(name = "bearer-jwt"))
+    @Operation(summary = "Criar novo jogo")
     public GameResponse createGame(@Valid @RequestBody CreateGameRequest request) {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
         return gameService.createGame(request);
     }
 
     @GetMapping
     @Operation(summary = "Listar todos os jogos com paginação")
-    public Page<GameResponse> getAllGames(@PageableDefault(size = 20, sort = "gameName") Pageable pageable) {
+    public Page<GameResponse> getAllGames(@ParameterObject @PageableDefault(size = 20, sort = "gameName") Pageable pageable) {
         return gameService.getAllGames(pageable);
     }
 
@@ -44,7 +50,7 @@ public class GameController {
     @Operation(summary = "Buscar jogos por nome")
     public Page<GameResponse> searchGames(
             @RequestParam(required = false) String q,
-            @PageableDefault(size = 20, sort = "gameName") Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "gameName") Pageable pageable) {
         return gameService.searchGames(q, pageable);
     }
 

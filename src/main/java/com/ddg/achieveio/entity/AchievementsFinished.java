@@ -9,19 +9,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Embeddable
-@Getter
-@Setter
-@EqualsAndHashCode
-class AchievementsFinishedId implements Serializable {
-
-    @Column(name = "achievement_id")
-    private UUID achievementId;
-
-    @Column(name = "user_id")
-    private UUID userId;
-}
-
 @Entity
 @Getter
 @Setter

@@ -1,6 +1,6 @@
 .PHONY: help dev-up dev-down dev-restart logs db-reset db-backup db-restore db-shell clean
 
-DOCKER_COMPOSE = docker-compose
+DOCKER_COMPOSE = sudo docker compose
 JAVA_PATHS = /opt/homebrew/opt/openjdk@21:/usr/local/opt/openjdk@21
 
 define find_java
