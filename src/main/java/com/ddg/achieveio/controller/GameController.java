@@ -61,7 +61,7 @@ public class GameController {
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar jogo", security = @SecurityRequirement(name = "bearer-jwt"))
+    @Operation(summary = "Atualizar jogo")
     public GameResponse updateGame(
             @PathVariable UUID id,
             @Valid @RequestBody UpdateGameRequest request) {
@@ -70,7 +70,7 @@ public class GameController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @Operation(summary = "Deletar jogo", security = @SecurityRequirement(name = "bearer-jwt"))
+    @Operation(summary = "Deletar jogo")
     public void deleteGame(@PathVariable UUID id) {
         gameService.deleteGame(id);
     }

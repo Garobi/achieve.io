@@ -9,14 +9,13 @@ public record SimpleGameDTO(
                 UUID id,
                 String gameName,
                 String imageUrl,
-                Set<SimplePlatformDTO> platforms // <- Incluindo plataformas
+                Set<SimplePlatformDTO> platforms
 ) {
     public SimpleGameDTO(Game game) {
         this(
                 game.getId(),
                 game.getGameName(),
                 game.getImageUrl(),
-                // Mapeia a lista de Platforms
                 game.getPlatforms().stream()
                         .map(SimplePlatformDTO::new)
                         .collect(Collectors.toSet())

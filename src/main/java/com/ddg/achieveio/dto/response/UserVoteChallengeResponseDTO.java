@@ -10,7 +10,7 @@ public record UserVoteChallengeResponseDTO(
         UUID challengeId,
         String challengeName,
         LocalDateTime votedAt,
-        Set<SimpleAchievementDTO> achievements // Conquistas dentro do desafio
+        Set<SimpleAchievementDTO> achievements
 ) {
     public static UserVoteChallengeResponseDTO of(VotesChallenges vote) {
         var challenge = vote.getChallenge();
