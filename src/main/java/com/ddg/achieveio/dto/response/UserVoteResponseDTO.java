@@ -7,7 +7,7 @@ import java.util.UUID;
 public record UserVoteResponseDTO(
         UUID achievementId,
         String achievementName,
-        SimpleGameDTO game, // Reutilizando DTO
+        SimpleGameDTO game,
         LocalDateTime votedAt
 ) {
     public static UserVoteResponseDTO of(VotesAchievements vote) {

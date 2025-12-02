@@ -9,7 +9,7 @@ public record AchievementsFinishedResponseDTO(
         UUID achievementId,
         String achievementName,
         String achievementDescription,
-        SimpleGameDTO game, // Reutilizando o DTO de 'Game'
+        SimpleGameDTO game,
         LocalDateTime completedAt
 ) {
 

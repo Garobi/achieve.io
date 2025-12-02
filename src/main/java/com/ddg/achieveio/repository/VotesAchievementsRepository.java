@@ -11,12 +11,9 @@ import java.util.UUID;
 @Repository
 public interface VotesAchievementsRepository extends JpaRepository<VotesAchievements, VotesAchievementsId> {
 
-    // Busca todos os votos de um usuário
     List<VotesAchievements> findByUserId(UUID userId);
 
-    // Busca todos os votos de uma conquista
     List<VotesAchievements> findByAchievementId(UUID achievementId);
 
-    // (Opcional, mas útil) Contar votos de uma conquista
     long countByAchievementId(UUID achievementId);
 }

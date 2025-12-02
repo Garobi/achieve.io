@@ -11,9 +11,7 @@ import java.util.UUID;
 @Repository
 public interface ChallengesFinishedRepository extends JpaRepository<ChallengesFinished, ChallengeFinishedId> {
 
-    // Busca todos os desafios completados por um usuário
     List<ChallengesFinished> findByUserId(UUID userId);
 
-    // Busca todos os usuários que completaram um desafio
     List<ChallengesFinished> findByChallengeId(UUID challengeId);
 }

@@ -11,12 +11,9 @@ import java.util.UUID;
 @Repository
 public interface VotesChallengesRepository extends JpaRepository<VotesChallenges, VotesChallengesId> {
 
-    // Busca todos os votos de um usuário
     List<VotesChallenges> findByUserId(UUID userId);
 
-    // Busca todos os votos de um desafio
     List<VotesChallenges> findByChallengeId(UUID challengeId);
 
-    // Contar votos de um desafio
     long countByChallengeId(UUID challengeId);
 }

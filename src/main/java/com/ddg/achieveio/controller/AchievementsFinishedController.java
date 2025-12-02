@@ -1,76 +1,48 @@
 package com.ddg.achieveio.controller;
 
+import com.ddg.achieveio.config.JWTUserData;
 import com.ddg.achieveio.dto.response.AchievementsFinishedResponseDTO;
 import com.ddg.achieveio.dto.request.FinishRequestDTO;
 import com.ddg.achieveio.dto.response.UserFinishedResponseDTO;
-import com.ddg.achieveio.entity.Achievement;
-import com.ddg.achieveio.entity.AchievementsFinished;
-import com.ddg.achieveio.entity.AchievementsFinishedId;
 import com.ddg.achieveio.entity.User;
-import com.ddg.achieveio.repository.AchievementRepository;
-import com.ddg.achieveio.repository.AchievementsFinishedRepository;
-import jakarta.persistence.EntityNotFoundException;
+import com.ddg.achieveio.service.AchievementFinishedService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/finished-achievements")
 public class AchievementsFinishedController {
 
-    private final AchievementsFinishedRepository finishedRepository;
-    private final AchievementRepository achievementRepository;
+    private final AchievementFinishedService finishedService;
 
-    public AchievementsFinishedController(AchievementsFinishedRepository finishedRepository, AchievementRepository achievementRepository) {
-        this.finishedRepository = finishedRepository;
-        this.achievementRepository = achievementRepository;
+    public AchievementsFinishedController(AchievementFinishedService finishedService) {
+        this.finishedService = finishedService;
     }
 
     @PostMapping
     public ResponseEntity<AchievementsFinishedResponseDTO> finishAchievement(
             @Valid @RequestBody FinishRequestDTO requestDTO,
-            @AuthenticationPrincipal User currentUser
+            @AuthenticationPrincipal JWTUserData currentUserData
     ) {
-        Achievement achievement = achievementRepository.findById(requestDTO.achievementId())
-                .orElseThrow(() -> new EntityNotFoundException("Conquista não encontrada"));
+        AchievementsFinishedResponseDTO responseDTO = finishedService.finishAchievement(
+                requestDTO.achievementId(),
+                currentUserData
+        );
 
-        AchievementsFinishedId id = new AchievementsFinishedId();
-        id.setUserId(currentUser.getId());
-        id.setAchievementId(requestDTO.achievementId());
-
-        if (finishedRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Esta conquista já foi completada");
-        }
-
-        AchievementsFinished newCompletion = new AchievementsFinished();
-        newCompletion.setId(id);
-        newCompletion.setUser(currentUser);
-        newCompletion.setAchievement(achievement);
-        newCompletion.setCompletedAt(LocalDateTime.now());
-
-        AchievementsFinished savedCompletion = finishedRepository.save(newCompletion);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AchievementsFinishedResponseDTO(savedCompletion));
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @GetMapping("/me")
     public ResponseEntity<List<AchievementsFinishedResponseDTO>> getMyFinishedAchievements(
-            @AuthenticationPrincipal User currentUser
+            @AuthenticationPrincipal JWTUserData currentUserData
     ) {
-        List<AchievementsFinished> completions = finishedRepository.findByUserId(currentUser.getId());
-
-        List<AchievementsFinishedResponseDTO> responseList = completions.stream()
-                .map(AchievementsFinishedResponseDTO::new)
-                .collect(Collectors.toList());
+        List<AchievementsFinishedResponseDTO> responseList = finishedService.getMyFinishedAchievements(currentUserData);
 
         return ResponseEntity.ok(responseList);
     }
@@ -79,11 +51,7 @@ public class AchievementsFinishedController {
     public ResponseEntity<List<AchievementsFinishedResponseDTO>> getFinishedAchievementsByUser(
             @PathVariable UUID userId
     ) {
-        List<AchievementsFinished> completions = finishedRepository.findByUserId(userId);
-
-        List<AchievementsFinishedResponseDTO> responseList = completions.stream()
-                .map(AchievementsFinishedResponseDTO::new)
-                .collect(Collectors.toList());
+        List<AchievementsFinishedResponseDTO> responseList = finishedService.getFinishedAchievementsByUser(userId);
 
         return ResponseEntity.ok(responseList);
     }
@@ -92,11 +60,7 @@ public class AchievementsFinishedController {
     public ResponseEntity<List<UserFinishedResponseDTO>> getUsersWhoFinishedAchievement(
             @PathVariable UUID achievementId
     ) {
-        List<AchievementsFinished> completions = finishedRepository.findByAchievementId(achievementId);
-
-        List<UserFinishedResponseDTO> responseList = completions.stream()
-                .map(UserFinishedResponseDTO::new)
-                .collect(Collectors.toList());
+        List<UserFinishedResponseDTO> responseList = finishedService.getUsersWhoFinishedAchievement(achievementId);
 
         return ResponseEntity.ok(responseList);
     }
@@ -104,17 +68,9 @@ public class AchievementsFinishedController {
     @DeleteMapping("/{achievementId}")
     public ResponseEntity<Void> unfinishAchievement(
             @PathVariable UUID achievementId,
-            @AuthenticationPrincipal User currentUser
+            @AuthenticationPrincipal JWTUserData currentUserData
     ) {
-        AchievementsFinishedId id = new AchievementsFinishedId();
-        id.setUserId(currentUser.getId());
-        id.setAchievementId(achievementId);
-
-        if (!finishedRepository.existsById(id)) {
-            throw new EntityNotFoundException("Esta conquista não está marcada como finalizada");
-        }
-
-        finishedRepository.deleteById(id);
+        finishedService.unfinishAchievement(achievementId, currentUserData);
 
         return ResponseEntity.noContent().build();
     }

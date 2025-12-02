@@ -15,7 +15,7 @@ public record UserFinishedResponseDTO(
 
         this(
                 finished.getUser().getId(),
-                finished.getUser().getName(), // Usando o 'name' do User.java
+                finished.getUser().getName(),
                 finished.getUser().getProfilePicture(),
                 finished.getCompletedAt()
         );

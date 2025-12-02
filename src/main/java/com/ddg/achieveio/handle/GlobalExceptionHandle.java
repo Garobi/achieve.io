@@ -8,6 +8,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.Map;
@@ -15,6 +16,18 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandle {
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ProblemDetail handleResponseStatusException(ResponseStatusException ex){
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(ex.getStatusCode(), ex.getReason());
+        if (ex.getStatusCode() instanceof org.springframework.http.HttpStatus httpStatus) {
+            problemDetail.setTitle(httpStatus.getReasonPhrase());
+        } else {
+            problemDetail.setTitle(ex.getStatusCode().toString());
+        }
+        problemDetail.setProperty("timestamp", java.time.Instant.now());
+        return problemDetail;
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ProblemDetail handleEntityNotFound(EntityNotFoundException ex) {
